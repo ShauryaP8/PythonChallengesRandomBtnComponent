@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Challenge</title>
+</head>
+<body>
+<h1>Random Question Generator</h1>
+<button id="generateButton">Press for Random Question</button>
+<p id="randomQuestion"></p>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const generateButton = document.getElementById('generateButton');
+    const randomQuestion = document.getElementById('randomQuestion');
+
+    // Load the TSV file and parse it into an array of questions
+    fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSRzyE2bvAUdvuVItR4Zr8vk3_ZoBagHFTIsFvxpExmfIQ8BQlEt3H9-nQhdm8KtijjpBDkPwP-K6r5/pub?gid=137603664&single=true&output=tsv')
+            .then(response => response.text())
+            .then(data => {
+              const questionsArray = data.split('\n').filter(question => question.trim() !== '');
+
+              generateButton.addEventListener('click', function() {
+                const randomIndex = Math.floor(Math.random() * questionsArray.length);
+                let randomQ = questionsArray[randomIndex];
+                // Remove unwanted parts
+                randomQ = randomQ
+                        .replace('GIS SUBMIT>>', '') // Remove "GIS SUBMIT>>"
+                        .replace(/\t+$/, ''); // Remove trailing tabs
+
+                // Split the TSV line by tabs
+                const parts = randomQ.split('\t');
+                const challengeCode = parts[0];
+                const score = parts[1];
+                const challenge = parts[2];
+                const description = parts[3]// parts.slice(3).join('\t');
+
+                // Format the output with labels and line breaks
+                randomQ = `Challenge Code:<a href="https://docs.google.com/forms/d/e/1FAIpQLSfR1DK0HBOTJ_wcTUHqivIi-MGhELTTblj-jxC7NYRyeiUESw/viewform?usp=pp_url&entry.761381367=${challengeCode}">${challengeCode}</a><br>Score: ${score}<br>Challenge: ${challenge}<br>Description: ${description}`;
+
+                randomQuestion.innerHTML = randomQ;
+              });
+            })
+            .catch(error => {
+              console.error('Error loading TSV file:', error);
+            });
+  });
+
+
+</script>
+</body>
+</html>
